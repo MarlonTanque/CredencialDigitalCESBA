@@ -2,6 +2,7 @@ package com.example.credencialdigitalcesba;
 
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.content.pm.ActivityInfo;
 import android.util.Base64;
 import android.view.View;
 import android.webkit.JavascriptInterface;
@@ -22,9 +23,11 @@ import java.io.ByteArrayOutputStream;
 public class MainActivity extends AppCompatActivity {
     private WebView webView;
     private ActivityResultLauncher<Void> camera;
+    private int previousOrientation;
 
     @Override protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        previousOrientation=getRequestedOrientation();
         getWindow().setStatusBarColor(android.graphics.Color.rgb(7,17,39));
         getWindow().setNavigationBarColor(android.graphics.Color.rgb(7,17,39));
         getWindow().getDecorView().setSystemUiVisibility(0);
@@ -69,6 +72,9 @@ public class MainActivity extends AppCompatActivity {
     }
     private class Bridge {
         @JavascriptInterface public void openCamera(){runOnUiThread(()->camera.launch(null));}
+        @JavascriptInterface public void setLandscape(boolean enabled){
+            runOnUiThread(()->setRequestedOrientation(enabled?ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE:previousOrientation));
+        }
         @JavascriptInterface public void makeQr(String contents){
             try {
                 BitMatrix matrix=new MultiFormatWriter().encode(contents, BarcodeFormat.QR_CODE,420,420);
